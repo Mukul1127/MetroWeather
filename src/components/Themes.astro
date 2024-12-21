@@ -1,0 +1,95 @@
+---
+/*
+  Mukul's Personal Website is a Website
+  Copyright (C) 2024 Mukul Kedia
+
+  Mukul's Personal Website is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as published
+  by the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  Mukul's Personal Website is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with Mukul's Personal Website. If not, see <https://www.gnu.org/licenses/>.
+*/
+
+import tailwindConfig from "tailwind.config";
+
+const themes = tailwindConfig.daisyui.themes.map((item) => (typeof item === "object" ? Object.keys(item)[0] : item)) as string[];
+
+import swatchbook from "@/assets/fontawesome/swatchbook.svg?raw";
+---
+
+<themes->
+  <div class="dropdown dropdown-end z-50">
+    <div role="button" tabindex="0" aria-labelledby="label" class="btn btn-ghost flex gap-2">
+      <div set:html={swatchbook} class="size-4 fill-current" />
+      <p id="label" class="hidden sm:block">Theme Changer</p>
+    </div>
+    <div title="Change Theme" class="dropdown-content">
+      <div tabindex="0" class="h-[28.6rem] max-h-[calc(100vh-10rem)] w-64 overflow-y-auto rounded-box border border-white/5 bg-base-200 shadow-2xl outline outline-1 outline-black/5">
+        <div class="grid grid-cols-1 gap-3 p-3 font-sans">
+          {
+            themes.map((theme) => (
+              <button id={theme} data-theme={theme} data-theme-option class="flex items-center gap-3 rounded-btn px-4 py-3 text-left transition-transform hover:scale-105" type="button">
+                <svg id={`${theme}-svg`} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="invisible size-3 shrink-0">
+                  <path d="M20.285 2l-11.285 11.567-5.286-5.011-3.714 3.716 9 8.728 15-15.285z" />
+                </svg>
+                <span class="grow text-sm font-semibold">{theme === "mukuls" ? "Mukul's" : theme[0]!.toUpperCase() + theme.substring(1)}</span>
+                <span class="flex h-full shrink-0 flex-wrap gap-1">
+                  <span class="w-2 rounded-badge bg-primary" />
+                  <span class="w-2 rounded-badge bg-secondary" />
+                  <span class="w-2 rounded-badge bg-accent" />
+                  <span class="w-2 rounded-badge bg-neutral" />
+                </span>
+              </button>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</themes->
+
+<script>
+  class Themes extends HTMLElement {
+    connectedCallback() {
+      const theme = localStorage.getItem("theme");
+
+      if (theme === null) {
+        const svg = this.querySelector<SVGAElement>(`#mukuls-svg`)!;
+        setTheme("mukuls", svg);
+      } else {
+        const svg = this.querySelector<SVGAElement>(`#${theme}-svg`)!;
+        setTheme(theme, svg);
+      }
+
+      const themeOptions = this.querySelectorAll("[data-theme-option]");
+
+      for (const themeOption of themeOptions) {
+        themeOption.addEventListener("click", () => {
+          const oldSvg = this.querySelector<SVGAElement>(`#${localStorage.getItem("theme")}-svg`)!;
+          oldSvg.classList.add("invisible");
+          const newSvg = this.querySelector<SVGAElement>(`#${themeOption.id}-svg`)!;
+          setTheme(themeOption.id, newSvg);
+        });
+      }
+    }
+  }
+
+  function setTheme(theme: string, svg: SVGElement) {
+    if (["mukuls", "dark", "synthwave", "halloween", "forest", "aqua", "black", "luxury", "dracula", "business", "night", "coffee", "dim", "sunset"].includes(theme))
+      document.documentElement.setAttribute("data-dark", "true");
+    else document.documentElement.setAttribute("data-dark", "false");
+
+    document.documentElement.setAttribute("data-theme", theme);
+    svg.classList.remove("invisible");
+    localStorage.setItem("theme", theme);
+  }
+
+  customElements.define("themes-", Themes);
+</script>

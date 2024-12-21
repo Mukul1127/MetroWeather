@@ -1,0 +1,48 @@
+/*
+  Mukul's Personal Website is a Website 
+  Copyright (C) 2024 Mukul Kedia
+
+  Mukul's Personal Website is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as published
+  by the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  Mukul's Personal Website is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with Mukul's Personal Website. If not, see <https://www.gnu.org/licenses/>.
+*/
+
+@font-face {
+  font-family: "Inter";
+  font-weight: 100 900;
+  font-display: swap;
+  font-style: normal;
+  src: url("/Inter.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "CascadiaCode";
+  font-weight: 100 900;
+  font-display: swap;
+  font-style: normal;
+  src: url("/CascadiaCode.woff2") format("woff2");
+}
+
+* {
+  text-rendering: optimizeLegibility;
+  font-feature-settings:
+    "ss01",
+    "cv05",
+    "ss03",
+    "case",
+    "cv06",
+    "cv11",
+    "cv12",
+    "cv13",
+    "liga" 1,
+    "calt" 1;
+}

@@ -1,0 +1,51 @@
+{
+  "name": "personal-website",
+  "version": "1.0.0",
+  "devDependencies": {
+    "@astrojs/tailwind": "^5.1.4",
+    "@eslint/js": "^9.17.0",
+    "@playform/compress": "^0.1.6",
+    "@playform/inline": "^0.1.0",
+    "@typescript-eslint/parser": "^8.18.1",
+    "astro": "5.1.1",
+    "daisyui": "^4.12.22",
+    "eslint": "^9.17.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-astro": "^1.3.1",
+    "eslint-plugin-prettier": "^5.2.1",
+    "eslint-plugin-tailwind": "^0.2.1",
+    "eslint-plugin-tailwindcss": "^3.17.5",
+    "jiti": "^2.4.2",
+    "prettier": "^3.4.2",
+    "prettier-plugin-astro": "^0.14.1",
+    "prettier-plugin-tailwindcss": "^0.6.9",
+    "tailwindcss": "^3.4.17",
+    "typescript": "5.7.2",
+    "typescript-eslint": "^8.18.1",
+    "uplot": "^1.6.31"
+  },
+  "//": [
+    "Mukul's Personal Website is a Website",
+    "Copyright (C) 2024 Mukul Kedia",
+    "Mukul's Personal Website is free software: you can redistribute it and/or modify",
+    "it under the terms of the GNU Affero General Public License as published",
+    "by the Free Software Foundation, either version 3 of the License, or",
+    "(at your option) any later version.",
+    "Mukul's Personal Website is distributed in the hope that it will be useful,",
+    "but WITHOUT ANY WARRANTY; without even the implied warranty of",
+    "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the",
+    "GNU Affero General Public License for more details.",
+    "You should have received a copy of the GNU Affero General Public License",
+    "along with Mukul's Personal Website. If not, see <https://www.gnu.org/licenses/>."
+  ],
+  "license": "AGPL-3.0-only",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "format": "prettier . --write",
+    "lint": "eslint --flag unstable_ts_config"
+  },
+  "type": "module"
+}

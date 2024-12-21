@@ -1,0 +1,45 @@
+---
+/*
+  Mukul's Personal Website is a Website
+  Copyright (C) 2024 Mukul Kedia
+
+  Mukul's Personal Website is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as published
+  by the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  Mukul's Personal Website is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with Mukul's Personal Website. If not, see <https://www.gnu.org/licenses/>.
+*/
+
+import Themes from "@/components/Themes.astro";
+import umbrella from "@/assets/fontawesome/umbrella.svg?raw";
+import githubAlt from "@/assets/fontawesome/github-alt.svg?raw";
+import wrench from "@/assets/fontawesome/wrench.svg?raw";
+
+import SettingsModal from "./SettingsModal.astro";
+---
+
+<SettingsModal />
+<nav class="navbar sticky top-0 z-50 justify-between bg-base-100/50 backdrop-blur md:justify-around">
+  <a href="/" class="btn btn-ghost text-xl">
+    <div set:html={umbrella} class="size-6 rotate-[35deg] fill-current" />
+    MeteoNow
+  </a>
+  <div class="flex gap-2">
+    <a aria-label="Open Mukul's Github Page" href="//github.com/Mukul1127" target="_blank" class="btn btn-ghost flex gap-2">
+      <div set:html={githubAlt} class="size-5 fill-current" />
+      <p class="hidden sm:block">Github</p>
+    </a>
+    <button onclick="settingsModal.showModal()" type="button" class="btn btn-ghost flex gap-2">
+      <div set:html={wrench} class="size-5 fill-current" />
+      <p class="hidden sm:block">Settings</p>
+    </button>
+    <Themes />
+  </div>
+</nav>

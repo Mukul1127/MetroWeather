@@ -1,0 +1,45 @@
+---
+/*
+  Mukul's Personal Website is a Website
+  Copyright (C) 2024 Mukul Kedia
+
+  Mukul's Personal Website is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as published
+  by the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  Mukul's Personal Website is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with Mukul's Personal Website. If not, see <https://www.gnu.org/licenses/>.
+*/
+
+import Nav from "@/components/Nav.astro";
+import Layout from "@/layouts/Layout.astro";
+
+import umbrella from "@/assets/fontawesome/umbrella.svg?raw";
+import arrowRight from "@/assets/fontawesome/arrow-right.svg?raw";
+---
+
+<Layout title="Home">
+  <Nav />
+  <div class="fixed inset-0 grid place-items-center">
+    <div>
+      <div class="flex gap-2">
+        <div set:html={umbrella} class="size-32 sm:size-48 md:size-56 lg:size-64 rotate-[35deg] fill-current" />
+        <div class="grid text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-bold leading-[0.9] tracking-tight">
+          <h1>Meteo</h1>
+          <h1 class="flex"><p class="text-accent">N</p><p class="text-primary">O</p><p class="text-secondary">W</p></h1>
+        </div>
+      </div>
+      <h1 class="font-bold text-lg sm:text-xl md:text-2xl text-center">Powerful Weather App</h1>
+    </div>
+    <a href="/Weather" class="btn btn-accent">
+      Begin your journey.
+      <div set:html={arrowRight} class="size-4 fill-current"></div>
+    </a>
+  </div>
+</Layout>

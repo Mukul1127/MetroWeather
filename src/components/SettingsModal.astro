@@ -1,0 +1,186 @@
+---
+import locationCrosshair from "@/assets/fontawesome/location-crosshairs.svg?raw";
+---
+
+<settings-modal->
+  <dialog id="settingsModal" class="modal">
+    <div class="modal-box">
+      <h3 class="text-lg font-bold">Settings</h3>
+      <br />
+      <legend class="py-2 font-semibold">Location:</legend>
+      <div class="flex gap-2">
+        <input data-numericInput id="latitudeInput" class="input input-primary min-w-0" type="text" inputmode="decimal" placeholder="Latitude" />
+        <input data-numericInput id="longitudeInput" class="input input-primary min-w-0" type="text" inputmode="decimal" placeholder="Longitude" />
+        <button id="locationButton" class="btn btn-primary tooltip tooltip-left">
+          <div set:html={locationCrosshair} class="size-4 fill-white dark:fill-black" />
+        </button>
+      </div>
+      <br />
+      <legend class="py-2 font-semibold">Units:</legend>
+      <ul class="grid grid-flow-col gap-2">
+        <li>
+          <input type="radio" id="imperial" name="units" value="imperial" class="peer hidden" required />
+          <label
+            for="imperial"
+            class="card size-full border border-accent bg-base-100 p-5 transition duration-300 hover:bg-accent hover:text-black active:scale-95 peer-checked:bg-accent peer-checked:text-black">
+            <h1 class="text-lg font-semibold">Imperial</h1>
+            <h2 class="text-balance font-medium">Fahrenheit, MPH, and Inches</h2>
+          </label>
+        </li>
+        <li>
+          <input type="radio" id="metric" name="units" value="metric" class="peer hidden" required />
+          <label
+            for="metric"
+            class="card size-full border border-accent bg-base-100 p-5 transition duration-300 hover:bg-accent hover:text-black active:scale-95 peer-checked:bg-accent peer-checked:text-black">
+            <h1 class="text-lg font-semibold">Metric</h1>
+            <h2 class="text-balance font-medium">Celsius, KMH, and Millimeters</h2>
+          </label>
+        </li>
+      </ul>
+      <br />
+      <form method="dialog" id="bottomRow" class="flex justify-between">
+        <button type="button" data-close class="btn btn-secondary tooltip-open tooltip-error tooltip-right" data-tip="Fill out the form first">Cancel</button>
+        <button type="button" data-close id="saveButton" class="btn btn-secondary tooltip-open tooltip-error tooltip-left" data-tip="Fill out the form first">Save</button>
+      </form>
+    </div>
+  </dialog>
+</settings-modal->
+
+<script>
+  class SettingsModal extends HTMLElement {
+    connectedCallback() {
+      const settingsModal = this.querySelector<HTMLDialogElement>("#settingsModal")!;
+      const latitudeInput = this.querySelector<HTMLInputElement>("#latitudeInput")!;
+      const longitudeInput = this.querySelector<HTMLInputElement>("#longitudeInput")!;
+      const locationButton = this.querySelector<HTMLButtonElement>("#locationButton")!;
+      const bottomRow = this.querySelector<HTMLFormElement>("#bottomRow")!;
+      const saveButton = this.querySelector<HTMLButtonElement>("#saveButton")!;
+
+      const unitSystem = localStorage.getItem("unitSystem");
+      if (unitSystem !== null) {
+        this.querySelector<HTMLInputElement>(`#${unitSystem}`)!.setAttribute("checked", "");
+      } else {
+        settingsModal.showModal();
+      }
+
+      const latitude = localStorage.getItem("latitude");
+      if (latitude !== null) {
+        latitudeInput.value = latitude;
+      } else {
+        settingsModal.showModal();
+      }
+
+      const longitude = localStorage.getItem("longitude");
+      if (longitude !== null) {
+        longitudeInput.value = longitude;
+      } else {
+        settingsModal.showModal();
+      }
+
+      this.querySelectorAll("[data-numericInput]").forEach((numericinput) => {
+        numericinput.addEventListener("input", (e) => {
+          const target = e.target! as HTMLInputElement;
+          target.value = target.value
+            .replace(/[^0-9.-]/g, "")
+            .replace(/(?!^)-/g, "")
+            .replace(/(\..*?)\..*/g, "$1")
+            .replace(/^0[^.]/, "0");
+        });
+      });
+
+      locationButton.addEventListener("click", () => {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            latitudeInput.value = position.coords.latitude.toString();
+            longitudeInput.value = position.coords.longitude.toString();
+
+            locationButton.classList.remove("tooltip", "tooltip-error");
+            locationButton.classList.add("tooltip", "tooltip-success", "tooltip-open");
+            locationButton.setAttribute("data-tip", "Success!");
+          },
+          (error) => {
+            locationButton.classList.remove("tooltip", "tooltip-success");
+            locationButton.classList.add("tooltip", "tooltip-open");
+
+            switch (error.code) {
+              case error.PERMISSION_DENIED:
+                locationButton.classList.add("tooltip-error");
+                locationButton.setAttribute("data-tip", "Location permision was denied.");
+                break;
+              case error.POSITION_UNAVAILABLE:
+                locationButton.classList.add("tooltip-info");
+                locationButton.setAttribute("data-tip", "Geolocation is currently unavailable.");
+                break;
+              case error.TIMEOUT:
+                locationButton.classList.add("tooltip-error");
+                locationButton.setAttribute("data-tip", "The request timed out.");
+                break;
+            }
+          },
+        );
+      });
+
+      this.querySelectorAll<HTMLButtonElement>("[data-close]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const unitsBoxChecked = this.querySelector<HTMLInputElement>(`input[name="units"]:checked`)!;
+          if (latitudeInput.value && longitudeInput.value && unitsBoxChecked) {
+            settingsModal.close();
+          } else {
+             button.classList.add("tooltip");
+             setTimeout(() => button.classList.remove("tooltip"), 3000);
+          }
+        });
+      });
+
+      settingsModal.addEventListener("keydown", (event) => {
+        const unitsBoxChecked = this.querySelector<HTMLInputElement>(`input[name="units"]:checked`)!;
+        if (event.key === "Escape") {
+          if (!latitudeInput.value || !longitudeInput.value || !unitsBoxChecked) {
+            event.preventDefault();
+            const button = bottomRow.querySelector<HTMLButtonElement>("button")!;
+            button.classList.add("tooltip");
+            setTimeout(() => button.classList.remove("tooltip"), 3000);
+          }
+        }
+      });
+
+      settingsModal.addEventListener("close", () => {
+        // Reset Values
+        const unitSystem = localStorage.getItem("unitSystem");
+        if (unitSystem !== null) {
+          document.getElementById(unitSystem)!.setAttribute("checked", "");
+        } else {
+          settingsModal.showModal();
+        }
+
+        const latitude = localStorage.getItem("latitude");
+        if (latitude !== null) {
+          latitudeInput.value = latitude;
+        } else {
+          settingsModal.showModal();
+        }
+
+        const longitude = localStorage.getItem("longitude");
+        if (longitude !== null) {
+          longitudeInput.value = longitude;
+        } else {
+          settingsModal.showModal();
+        }
+
+        // Remove Tooltip
+        locationButton.classList.remove("tooltip", "tooltip-open");
+        locationButton.removeAttribute("data-tip");
+      });
+
+      saveButton.addEventListener("click", () => {
+        if (latitudeInput.value) localStorage.setItem("latitude", latitudeInput.value);
+        if (longitudeInput.value) localStorage.setItem("longitude", longitudeInput.value);
+
+        const unitsBoxChecked = this.querySelector<HTMLInputElement>(`input[name="units"]:checked`)!;
+        if (unitsBoxChecked) localStorage.setItem("unitSystem", unitsBoxChecked.value);
+      });
+    }
+  }
+
+  customElements.define("settings-modal-", SettingsModal);
+</script>

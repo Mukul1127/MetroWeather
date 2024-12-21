@@ -1,0 +1,39 @@
+---
+/*
+  Mukul's Personal Website is a Website
+  Copyright (C) 2024 Mukul Kedia
+
+  Mukul's Personal Website is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as published
+  by the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  Mukul's Personal Website is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with Mukul's Personal Website. If not, see <https://www.gnu.org/licenses/>.
+*/
+
+import Layout from "@/layouts/Layout.astro";
+
+import Themes from "@/components/Themes.astro";
+---
+
+<Layout title="404">
+  <main class="grid h-screen place-items-center">
+    <div class="absolute right-0 top-0 p-4">
+      <Themes />
+    </div>
+    <div class="text-center">
+      <p class="font-semibold text-accent">404</p>
+      <h1 class="mt-4 text-3xl font-bold tracking-tight text-primary sm:text-5xl">Not Found</h1>
+      <p class="mt-6 text-balance text-base font-semibold leading-7">Sorry, we couldn't find the page you're looking for.</p>
+      <div class="mt-10 flex items-center justify-center gap-x-6">
+        <a href="/" class="btn btn-accent">Go back home</a>
+      </div>
+    </div>
+  </main>
+</Layout>

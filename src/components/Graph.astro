@@ -1,0 +1,329 @@
+---
+/*
+  Mukul's Personal Website is a Website
+  Copyright (C) 2024 Mukul Kedia
+
+  Mukul's Personal Website is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as published
+  by the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  Mukul's Personal Website is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with Mukul's Personal Website. If not, see <https://www.gnu.org/licenses/>.
+*/
+
+import rotateRight from "@/assets/fontawesome/rotate-right.svg?raw";
+import bug from "@/assets/fontawesome/bug.svg?raw";
+
+interface Props {
+  parameter: string;
+  friendlyName: string;
+  type: string;
+}
+
+const { parameter, friendlyName, type } = Astro.props;
+---
+
+<graphs->
+  <div class="card size-fit bg-neutral p-4 min-w-[23rem]">
+    <div class="mb-3 flex justify-between">
+      <h1 class="m-1 text-balance text-2xl font-bold text-neutral-content">{friendlyName}</h1>
+      <h1 class="w-48 text-balance text-xs text-neutral-content sm:text-sm">
+        Weather Data generously provided by <a href="//open-meteo.com" target="_blank" class="link text-accent">Open-Meteo</a>
+      </h1>
+    </div>
+    <div id="plot" data-parameter={parameter} data-type={type} class="skeleton"></div>
+    <div id="errorToast" role="alert" class="alert alert-error hidden flex-row">
+      <div set:html={bug} class="ml-1.5 size-4" />
+      <span>Error</span>
+    </div>
+    <br />
+    <div class="card flex h-fit w-full flex-row items-center justify-between">
+      <button id="reloadButton" class="btn btn-disabled btn-primary w-32">
+        <div id="loading">
+          <span class="loading loading-dots loading-md"></span>
+          <p class="sr-only">Loading</p>
+        </div>
+        <div class="hidden w-full flex-row items-center justify-around gap-2" id="done">
+          <div set:html={rotateRight} class="size-4 fill-current" />
+          Reload?
+        </div>
+      </button>
+      <h1 id="info" class="mr-[1vw] text-balance text-right text-xs font-bold text-neutral-content sm:text-sm md:text-lg lg:text-xl"></h1>
+    </div>
+  </div>
+</graphs->
+
+<script>
+  import uPlot from "uplot";
+  import "uplot/dist/uPlot.min.css";
+
+  const SCREEN_CONSTRAINTS = {
+    MIN_WIDTH: 350,
+    MAX_WIDTH: 800,
+    MIN_HEIGHT: 175,
+    MAX_HEIGHT: 400,
+    WIDTH_RATIO: 0.8,
+    HEIGHT_RATIO: 0.4,
+  };
+
+  type WeatherData = {
+    latitude: number;
+    longitude: number;
+    generationtime_ms: number;
+    utc_offset_seconds: number;
+    timezone: string;
+    timezone_abbreviation: string;
+    elevation: number;
+    hourly_units: Record<string, string[]>;
+    hourly: Record<string, number[] | string[]>;
+  };
+
+  type CallbackFunction = (error: Error) => void;
+
+  function averageDataWithNull(rawData: Record<string, number[] | string[]>): (number | null)[] {
+    const filteredData = Object.values(rawData).slice(1)! as number[][];
+    const arrays: number[][] = Array.from({ length: filteredData.length }, () => []);
+
+    filteredData.forEach((array) => {
+      array.forEach((value, index) => {
+        arrays[index]!.push(value);
+      });
+    });
+
+    const averages = arrays.map((array) => {
+      if (array.length < 1) return null;
+      const average = array.reduce((sum, num) => sum + num, 0) / array.length;
+      return parseFloat((Math.round(average * 10) / 10).toFixed(1));
+    });
+
+    return averages;
+  }
+
+  async function getWeatherData(parameter: string, errorFunction: CallbackFunction): Promise<WeatherData> {
+    const apiUrl = new URL("https://ensemble-api.open-meteo.com/v1/ensemble");
+    apiUrl.searchParams.set("latitude", localStorage.getItem("latitude")!);
+    apiUrl.searchParams.set("longitude", localStorage.getItem("longitude")!);
+    apiUrl.searchParams.set("timeformat", "unixtime");
+    apiUrl.searchParams.set("hourly", parameter);
+    apiUrl.searchParams.set("temperature_unit", localStorage.getItem("unitSystem") === "imperial" ? "fahrenheit" : "celsius");
+    apiUrl.searchParams.set("wind_speed_unit", localStorage.getItem("unitSystem") === "imperial" ? "mph" : "kmh");
+    apiUrl.searchParams.set("precipitation_unit", localStorage.getItem("unitSystem") === "imperial" ? "inch" : "mm");
+    apiUrl.searchParams.set(
+      "models",
+      ["icon_seamless", "icon_global", "icon_eu", "icon_d2", "gfs_seamless", "gfs025", "gfs05", "ecmwf_ifs04", "ecmwf_ifs025", "gem_global", "bom_access_global_ensemble"].toString(),
+    );
+
+    const finalUrl = apiUrl.toString();
+    // const finalUrl = "https://run.mocky.io/v3/2b3579b6-06aa-4e40-8684-0c0910ec603b";
+
+    try {
+      const response = await fetch(finalUrl);
+      if (!response.ok) {
+        const error = new Error("Non-200 Response Code");
+        errorFunction(error);
+        throw error;
+      }
+      const json = await response.json();
+      return json;
+    } catch (error) {
+      errorFunction(error as Error);
+      throw error;
+    }
+  }
+
+  function generateRandomColor() {
+    return "#" + (16777216 + Math.floor(Math.random() * 16777216)).toString(16).substring(1);
+  }
+
+  function clamp(num: number, lower: number, upper: number): number {
+    return Math.min(Math.max(num, lower), upper);
+  }
+
+  function calculateDimensions(): { width: number; height: number } {
+    return {
+      width: clamp(window.screen.width * SCREEN_CONSTRAINTS.WIDTH_RATIO, SCREEN_CONSTRAINTS.MIN_WIDTH, SCREEN_CONSTRAINTS.MAX_WIDTH),
+      height: clamp(window.screen.width * SCREEN_CONSTRAINTS.HEIGHT_RATIO, SCREEN_CONSTRAINTS.MIN_HEIGHT, SCREEN_CONSTRAINTS.MAX_HEIGHT),
+    };
+  }
+
+  function waitUntilReady() {
+    const poll = (resolve: () => void) => {
+      const latitude = localStorage.getItem("latitude");
+      const longitude = localStorage.getItem("longitude");
+      const unitSystem = localStorage.getItem("unitSystem");
+
+      if (latitude && longitude && unitSystem) resolve();
+      else setTimeout(() => poll(resolve), 500);
+    }
+
+    return new Promise(poll as (resolve: (value: unknown) => void) => void);
+  }
+
+  class Graphs extends HTMLElement {
+    async connectedCallback() {
+      const plot = this.querySelector<HTMLElement>("#plot")!;
+      const errorToast = this.querySelector<HTMLElement>("#errorToast")!;
+      const reloadButton = this.querySelector<HTMLElement>("#reloadButton")!;
+      const loading = this.querySelector<HTMLElement>("#loading")!;
+      const done = this.querySelector<HTMLElement>("#done")!;
+      const info = this.querySelector<HTMLElement>("#info")!;
+
+      const parameter = plot.dataset.parameter!;
+
+      await waitUntilReady();
+
+      const dimensions = calculateDimensions();
+      errorToast.style.width = `${dimensions.width}px`;
+      plot.style.width = `${dimensions.width}px`;
+      plot.style.height = `${dimensions.height}px`;
+
+      const json = await getWeatherData(parameter, (error) => {
+        // Set Error Toast
+        errorToast.classList.remove("hidden");
+        errorToast.classList.add("flex");
+        errorToast.querySelector("span")!.innerText = `${error.name}: ${error.message}`;
+
+        // Hide Plot
+        plot.classList.add("hidden");
+
+        // Enable Refresh Button to Reload Page
+        reloadButton.addEventListener("click", () => {
+          window.location.reload();
+        });
+        reloadButton.classList.remove("btn-disabled");
+        loading.classList.add("hidden");
+        done.classList.remove("hidden");
+        done.classList.add("flex");
+      });
+
+      const series: uPlot.Series[] = [];
+      for (const key of Object.keys(json.hourly)) {
+        if (key === "time") {
+          series.push({});
+          continue;
+        }
+        series.push({
+          show: true,
+          spanGaps: true,
+          stroke: generateRandomColor(),
+          width: 2,
+          paths: eval(`uPlot.paths.${plot.dataset.type}()`)
+        });
+      }
+      series.push({
+        show: true,
+        spanGaps: true,
+        stroke: `oklch(${window.getComputedStyle(document.body).getPropertyValue("--b1")})`,
+        width: 7,
+      });
+
+      const opts = {
+        width: clamp(window.screen.width * 0.8, 350, 800),
+        height: clamp(window.screen.width * 0.4, 175, 400),
+        series: series,
+        legend: {
+          show: false,
+        },
+        axes: [
+          {
+            font: "14px Inter",
+            stroke: `oklch(${window.getComputedStyle(this).getPropertyValue("--nc")})`,
+          },
+          {
+            label: json.hourly_units[`${parameter}_icon_seamless`],
+            labelFont: "bold 14px Inter",
+            font: "14px Inter",
+            stroke: `oklch(${window.getComputedStyle(this).getPropertyValue("--nc")})`,
+          },
+        ],
+      } as uPlot.Options;
+
+      const data: (string[] | (number | null)[])[] = [];
+      data.push(json.hourly.time!);
+      Object.values(json.hourly)
+        .slice(1)
+        .forEach((array) => {
+          data.push(array.map((value) => (isNaN(value as number) ? null : (value as number))));
+        });
+      data.push(averageDataWithNull(json.hourly));
+
+      const uplot = new uPlot(opts, data as uPlot.AlignedData, plot);
+
+      window.addEventListener("resize", () => {
+        const dimensions = calculateDimensions();
+        errorToast.style.width = `${dimensions.width}px`;
+        plot.style.width = `${dimensions.width}px`;
+        plot.style.height = `${dimensions.height}px`;
+        uplot.setSize(dimensions);
+      });
+
+      const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+          if (mutation.type === "attributes" && mutation.attributeName!.startsWith("data-theme")) {
+            uplot.axes.forEach((axis) => {
+              axis.stroke = () => `oklch(${window.getComputedStyle(this).getPropertyValue("--nc")})`;
+            });
+            uplot.series.at(-1)!.stroke = () => `oklch(${window.getComputedStyle(this).getPropertyValue("--b1")})`;
+            uplot.redraw(false, false);
+          }
+        });
+      });
+
+      observer.observe(document.documentElement, { attributes: true });
+
+      plot.classList.remove("skeleton");
+      loading.classList.add("hidden");
+      done.classList.remove("hidden");
+      done.classList.add("flex");
+      reloadButton.classList.remove("btn-disabled");
+      info.innerText = `${localStorage.getItem("latitude")}°N, ${localStorage.getItem("longitude")}°E, ${json.elevation}m above sea level`;
+
+      reloadButton.addEventListener("click", async () => {
+        // Disable refresh button
+        reloadButton.classList.add("btn-disabled");
+        loading.classList.remove("hidden");
+        done.classList.add("hidden");
+        done.classList.remove("flex");
+
+        // Update Data
+        const json = await getWeatherData(parameter, (error) => {
+          // Set Error Toast
+          errorToast.classList.remove("hidden");
+          errorToast.classList.add("flex");
+          errorToast.querySelector("span")!.innerText = `${error.name}: ${error.message}`;
+
+          // Hide Plot
+          plot.classList.add("hidden");
+
+          // Enable Refresh Button to Reload Page
+          reloadButton.addEventListener("click", () => {
+            window.location.reload();
+          });
+          reloadButton.classList.remove("btn-disabled");
+          loading.classList.add("hidden");
+          done.classList.remove("hidden");
+          done.classList.add("flex");
+        });
+        const data = Object.values(json.hourly) as uPlot.AlignedData;
+        data.push(averageDataWithNull(json.hourly) as unknown as uPlot.TypedArray);
+        uplot.setData(data, true);
+        uplot.axes[1]!.label = localStorage.getItem("unitSystem") === "imperial" ? "Temperature (°F)" : "Temperature (°C)";
+        info.innerText = `${localStorage.getItem("latitude")}°N, ${localStorage.getItem("longitude")}°E, ${json.elevation}m above sea level`;
+
+        // Enable refresh button
+        reloadButton.classList.remove("btn-disabled");
+        loading.classList.add("hidden");
+        done.classList.remove("hidden");
+        done.classList.add("flex");
+      });
+    }
+  }
+
+  customElements.define("graphs-", Graphs);
+</script>
