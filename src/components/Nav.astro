@@ -1,20 +1,20 @@
 ---
 /*
-  Mukul's Personal Website is a Website
+  MeteoNow is a Weather App
   Copyright (C) 2024 Mukul Kedia
 
-  Mukul's Personal Website is free software: you can redistribute it and/or modify
+  MeteoNow is free software: you can redistribute it and/or modify
   it under the terms of the GNU Affero General Public License as published
   by the Free Software Foundation, either version 3 of the License, or
   (at your option) any later version.
 
-  Mukul's Personal Website is distributed in the hope that it will be useful,
+  MeteoNow is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU Affero General Public License for more details.
 
   You should have received a copy of the GNU Affero General Public License
-  along with Mukul's Personal Website. If not, see <https://www.gnu.org/licenses/>.
+  along with MeteoNow. If not, see <https://www.gnu.org/licenses/>.
 */
 
 import Themes from "@/components/Themes.astro";
@@ -28,7 +28,7 @@ import SettingsModal from "./SettingsModal.astro";
 <SettingsModal />
 <nav class="navbar sticky top-0 z-50 justify-between bg-base-100/50 backdrop-blur md:justify-around">
   <a href="/" class="btn btn-ghost text-xl">
-    <div set:html={umbrella} class="size-6 rotate-[35deg] fill-current" />
+    <div set:html={umbrella} class="size-6 fill-current" />
     MeteoNow
   </a>
   <div class="flex gap-2">

@@ -1,20 +1,20 @@
 ---
 /*
-  Mukul's Personal Website is a Website
+  MeteoNow is a Weather App
   Copyright (C) 2024 Mukul Kedia
 
-  Mukul's Personal Website is free software: you can redistribute it and/or modify
+  MeteoNow is free software: you can redistribute it and/or modify
   it under the terms of the GNU Affero General Public License as published
   by the Free Software Foundation, either version 3 of the License, or
   (at your option) any later version.
 
-  Mukul's Personal Website is distributed in the hope that it will be useful,
+  MeteoNow is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU Affero General Public License for more details.
 
   You should have received a copy of the GNU Affero General Public License
-  along with Mukul's Personal Website. If not, see <https://www.gnu.org/licenses/>.
+  along with MeteoNow. If not, see <https://www.gnu.org/licenses/>.
 */
 
 import rotateRight from "@/assets/fontawesome/rotate-right.svg?raw";
@@ -30,7 +30,7 @@ const { parameter, friendlyName, type } = Astro.props;
 ---
 
 <graphs->
-  <div class="card size-fit bg-neutral p-4 min-w-[23rem]">
+  <div class="card size-fit min-w-[23rem] bg-neutral p-4">
     <div class="mb-3 flex justify-between">
       <h1 class="m-1 text-balance text-2xl font-bold text-neutral-content">{friendlyName}</h1>
       <h1 class="w-48 text-balance text-xs text-neutral-content sm:text-sm">
@@ -72,7 +72,7 @@ const { parameter, friendlyName, type } = Astro.props;
     HEIGHT_RATIO: 0.4,
   };
 
-  type WeatherData = {
+  interface WeatherData {
     latitude: number;
     longitude: number;
     generationtime_ms: number;
@@ -82,7 +82,7 @@ const { parameter, friendlyName, type } = Astro.props;
     elevation: number;
     hourly_units: Record<string, string[]>;
     hourly: Record<string, number[] | string[]>;
-  };
+  }
 
   type CallbackFunction = (error: Error) => void;
 
@@ -160,7 +160,7 @@ const { parameter, friendlyName, type } = Astro.props;
 
       if (latitude && longitude && unitSystem) resolve();
       else setTimeout(() => poll(resolve), 500);
-    }
+    };
 
     return new Promise(poll as (resolve: (value: unknown) => void) => void);
   }
@@ -213,7 +213,7 @@ const { parameter, friendlyName, type } = Astro.props;
           spanGaps: true,
           stroke: generateRandomColor(),
           width: 2,
-          paths: eval(`uPlot.paths.${plot.dataset.type}()`)
+          paths: eval(`uPlot.paths.${plot.dataset.type}()`),
         });
       }
       series.push({

@@ -1,4 +1,22 @@
 ---
+/*
+  MeteoNow is a Weather App
+  Copyright (C) 2024 Mukul Kedia
+
+  MeteoNow is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as published
+  by the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  MeteoNow is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with MeteoNow. If not, see <https://www.gnu.org/licenses/>.
+*/
+
 import locationCrosshair from "@/assets/fontawesome/location-crosshairs.svg?raw";
 ---
 
@@ -39,8 +57,8 @@ import locationCrosshair from "@/assets/fontawesome/location-crosshairs.svg?raw"
       </ul>
       <br />
       <form method="dialog" id="bottomRow" class="flex justify-between">
-        <button type="button" data-close class="btn btn-secondary tooltip-open tooltip-error tooltip-right" data-tip="Fill out the form first">Cancel</button>
-        <button type="button" data-close id="saveButton" class="btn btn-secondary tooltip-open tooltip-error tooltip-left" data-tip="Fill out the form first">Save</button>
+        <button type="button" data-close class="btn btn-secondary tooltip-right tooltip-open tooltip-error" data-tip="Fill out the form first">Cancel</button>
+        <button type="button" data-close id="saveButton" class="btn btn-secondary tooltip-left tooltip-open tooltip-error" data-tip="Fill out the form first">Save</button>
       </form>
     </div>
   </dialog>
@@ -57,24 +75,15 @@ import locationCrosshair from "@/assets/fontawesome/location-crosshairs.svg?raw"
       const saveButton = this.querySelector<HTMLButtonElement>("#saveButton")!;
 
       const unitSystem = localStorage.getItem("unitSystem");
-      if (unitSystem !== null) {
-        this.querySelector<HTMLInputElement>(`#${unitSystem}`)!.setAttribute("checked", "");
-      } else {
-        settingsModal.showModal();
-      }
-
       const latitude = localStorage.getItem("latitude");
-      if (latitude !== null) {
-        latitudeInput.value = latitude;
-      } else {
-        settingsModal.showModal();
-      }
-
       const longitude = localStorage.getItem("longitude");
-      if (longitude !== null) {
+
+      if (unitSystem && latitude && longitude) {
+        this.querySelector<HTMLInputElement>(`#${unitSystem}`)!.setAttribute("checked", "");
+        latitudeInput.value = latitude;
         longitudeInput.value = longitude;
       } else {
-        settingsModal.showModal();
+        if (window.location.pathname !== "/" || document.documentElement.dataset.astroTransition !== undefined) settingsModal.showModal();
       }
 
       this.querySelectorAll("[data-numericInput]").forEach((numericinput) => {
@@ -126,8 +135,8 @@ import locationCrosshair from "@/assets/fontawesome/location-crosshairs.svg?raw"
           if (latitudeInput.value && longitudeInput.value && unitsBoxChecked) {
             settingsModal.close();
           } else {
-             button.classList.add("tooltip");
-             setTimeout(() => button.classList.remove("tooltip"), 3000);
+            button.classList.add("tooltip");
+            setTimeout(() => button.classList.remove("tooltip"), 3000);
           }
         });
       });
@@ -149,22 +158,16 @@ import locationCrosshair from "@/assets/fontawesome/location-crosshairs.svg?raw"
         const unitSystem = localStorage.getItem("unitSystem");
         if (unitSystem !== null) {
           document.getElementById(unitSystem)!.setAttribute("checked", "");
-        } else {
-          settingsModal.showModal();
         }
 
         const latitude = localStorage.getItem("latitude");
         if (latitude !== null) {
           latitudeInput.value = latitude;
-        } else {
-          settingsModal.showModal();
         }
 
         const longitude = localStorage.getItem("longitude");
         if (longitude !== null) {
           longitudeInput.value = longitude;
-        } else {
-          settingsModal.showModal();
         }
 
         // Remove Tooltip

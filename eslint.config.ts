@@ -1,37 +1,44 @@
 /*
-  Mukul's Personal Website is a Website
+  MeteoNow is a Weather App
   Copyright (C) 2024 Mukul Kedia
 
-  Mukul's Personal Website is free software: you can redistribute it and/or modify
+  MeteoNow is free software: you can redistribute it and/or modify
   it under the terms of the GNU Affero General Public License as published
   by the Free Software Foundation, either version 3 of the License, or
   (at your option) any later version.
 
-  Mukul's Personal Website is distributed in the hope that it will be useful,
+  MeteoNow is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU Affero General Public License for more details.
 
   You should have received a copy of the GNU Affero General Public License
-  along with Mukul's Personal Website. If not, see <https://www.gnu.org/licenses/>.
+  along with MeteoNow. If not, see <https://www.gnu.org/licenses/>.
 */
 
-import type { Linter } from "eslint";
-
 import js from "@eslint/js";
-import tsEslint from "typescript-eslint";
+import tseslint from "typescript-eslint";
 
 import tailwind from "eslint-plugin-tailwindcss";
 import eslintPluginAstro from "eslint-plugin-astro";
 import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended";
 
-export default [
+export default tseslint.config(
   js.configs.recommended,
-  ...tsEslint.configs.recommended,
-  ...tailwind.configs["flat/recommended"],
-  ...eslintPluginAstro.configs["flat/recommended"],
+  tseslint.configs.strictTypeChecked,
+  tseslint.configs.stylisticTypeChecked,
+  tailwind.configs["flat/recommended"],
+  eslintPluginAstro.configs["flat/recommended"],
   eslintPluginPrettierRecommended,
   {
-    ignores: [".astro/types.d.ts"],
+    ignores: [".astro/", "dist/"],
   },
-] satisfies Linter.FlatConfig[];
+  {
+    languageOptions: {
+      parserOptions: {
+        project: true,
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
+  },
+);
