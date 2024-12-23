@@ -33,6 +33,7 @@ export default {
   plugins: [daisyui],
   daisyui: {
     logs: false,
+    darkTheme: "mukuls",
     themes: [
       {
         mukuls: {

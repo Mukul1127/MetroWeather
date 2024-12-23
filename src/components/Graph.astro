@@ -86,87 +86,21 @@ const { parameter, friendlyName, type } = Astro.props;
 
   type CallbackFunction = (error: Error) => void;
 
-  function averageDataWithNull(rawData: Record<string, number[] | string[]>): (number | null)[] {
-    const filteredData = Object.values(rawData).slice(1)! as number[][];
-    const arrays: number[][] = Array.from({ length: filteredData.length }, () => []);
-
-    filteredData.forEach((array) => {
-      array.forEach((value, index) => {
-        arrays[index]!.push(value);
-      });
-    });
-
-    const averages = arrays.map((array) => {
-      if (array.length < 1) return null;
-      const average = array.reduce((sum, num) => sum + num, 0) / array.length;
-      return parseFloat((Math.round(average * 10) / 10).toFixed(1));
-    });
-
-    return averages;
-  }
-
-  async function getWeatherData(parameter: string, errorFunction: CallbackFunction): Promise<WeatherData> {
-    const apiUrl = new URL("https://ensemble-api.open-meteo.com/v1/ensemble");
-    apiUrl.searchParams.set("latitude", localStorage.getItem("latitude")!);
-    apiUrl.searchParams.set("longitude", localStorage.getItem("longitude")!);
-    apiUrl.searchParams.set("timeformat", "unixtime");
-    apiUrl.searchParams.set("hourly", parameter);
-    apiUrl.searchParams.set("temperature_unit", localStorage.getItem("unitSystem") === "imperial" ? "fahrenheit" : "celsius");
-    apiUrl.searchParams.set("wind_speed_unit", localStorage.getItem("unitSystem") === "imperial" ? "mph" : "kmh");
-    apiUrl.searchParams.set("precipitation_unit", localStorage.getItem("unitSystem") === "imperial" ? "inch" : "mm");
-    apiUrl.searchParams.set(
-      "models",
-      ["icon_seamless", "icon_global", "icon_eu", "icon_d2", "gfs_seamless", "gfs025", "gfs05", "ecmwf_ifs04", "ecmwf_ifs025", "gem_global", "bom_access_global_ensemble"].toString(),
-    );
-
-    const finalUrl = apiUrl.toString();
-    // const finalUrl = "https://run.mocky.io/v3/2b3579b6-06aa-4e40-8684-0c0910ec603b";
-
-    try {
-      const response = await fetch(finalUrl);
-      if (!response.ok) {
-        const error = new Error("Non-200 Response Code");
-        errorFunction(error);
-        throw error;
-      }
-      const json = await response.json();
-      return json;
-    } catch (error) {
-      errorFunction(error as Error);
-      throw error;
-    }
-  }
-
-  function generateRandomColor() {
-    return "#" + (16777216 + Math.floor(Math.random() * 16777216)).toString(16).substring(1);
-  }
-
-  function clamp(num: number, lower: number, upper: number): number {
-    return Math.min(Math.max(num, lower), upper);
-  }
-
-  function calculateDimensions(): { width: number; height: number } {
-    return {
-      width: clamp(window.screen.width * SCREEN_CONSTRAINTS.WIDTH_RATIO, SCREEN_CONSTRAINTS.MIN_WIDTH, SCREEN_CONSTRAINTS.MAX_WIDTH),
-      height: clamp(window.screen.width * SCREEN_CONSTRAINTS.HEIGHT_RATIO, SCREEN_CONSTRAINTS.MIN_HEIGHT, SCREEN_CONSTRAINTS.MAX_HEIGHT),
-    };
-  }
-
-  function waitUntilReady() {
-    const poll = (resolve: () => void) => {
+  class Graphs extends HTMLElement {
+    connectedCallback() {
       const latitude = localStorage.getItem("latitude");
       const longitude = localStorage.getItem("longitude");
       const unitSystem = localStorage.getItem("unitSystem");
 
-      if (latitude && longitude && unitSystem) resolve();
-      else setTimeout(() => poll(resolve), 500);
-    };
+      if (!latitude || !longitude || !unitSystem) {
+        setTimeout(() => this.connectedCallback(), 500);
+        return;
+      };
 
-    return new Promise(poll as (resolve: (value: unknown) => void) => void);
-  }
+      this.setup();
+    }
 
-  class Graphs extends HTMLElement {
-    async connectedCallback() {
+    async setup() {
       const plot = this.querySelector<HTMLElement>("#plot")!;
       const errorToast = this.querySelector<HTMLElement>("#errorToast")!;
       const reloadButton = this.querySelector<HTMLElement>("#reloadButton")!;
@@ -176,14 +110,12 @@ const { parameter, friendlyName, type } = Astro.props;
 
       const parameter = plot.dataset.parameter!;
 
-      await waitUntilReady();
-
-      const dimensions = calculateDimensions();
+      const dimensions = this.calculateDimensions();
       errorToast.style.width = `${dimensions.width}px`;
       plot.style.width = `${dimensions.width}px`;
       plot.style.height = `${dimensions.height}px`;
 
-      const json = await getWeatherData(parameter, (error) => {
+      const json = await this.getWeatherData(parameter, (error) => {
         // Set Error Toast
         errorToast.classList.remove("hidden");
         errorToast.classList.add("flex");
@@ -211,7 +143,7 @@ const { parameter, friendlyName, type } = Astro.props;
         series.push({
           show: true,
           spanGaps: true,
-          stroke: generateRandomColor(),
+          stroke: this.generateRandomColor(),
           width: 2,
           paths: eval(`uPlot.paths.${plot.dataset.type}()`),
         });
@@ -224,8 +156,8 @@ const { parameter, friendlyName, type } = Astro.props;
       });
 
       const opts = {
-        width: clamp(window.screen.width * 0.8, 350, 800),
-        height: clamp(window.screen.width * 0.4, 175, 400),
+        width: dimensions.width,
+        height: dimensions.height,
         series: series,
         legend: {
           show: false,
@@ -251,12 +183,12 @@ const { parameter, friendlyName, type } = Astro.props;
         .forEach((array) => {
           data.push(array.map((value) => (isNaN(value as number) ? null : (value as number))));
         });
-      data.push(averageDataWithNull(json.hourly));
+      data.push(this.averageDataWithNull(json.hourly));
 
       const uplot = new uPlot(opts, data as uPlot.AlignedData, plot);
 
       window.addEventListener("resize", () => {
-        const dimensions = calculateDimensions();
+        const dimensions = this.calculateDimensions();
         errorToast.style.width = `${dimensions.width}px`;
         plot.style.width = `${dimensions.width}px`;
         plot.style.height = `${dimensions.height}px`;
@@ -292,7 +224,7 @@ const { parameter, friendlyName, type } = Astro.props;
         done.classList.remove("flex");
 
         // Update Data
-        const json = await getWeatherData(parameter, (error) => {
+        const json = await this.getWeatherData(parameter, (error) => {
           // Set Error Toast
           errorToast.classList.remove("hidden");
           errorToast.classList.add("flex");
@@ -311,7 +243,7 @@ const { parameter, friendlyName, type } = Astro.props;
           done.classList.add("flex");
         });
         const data = Object.values(json.hourly) as uPlot.AlignedData;
-        data.push(averageDataWithNull(json.hourly) as unknown as uPlot.TypedArray);
+        data.push(this.averageDataWithNull(json.hourly) as unknown as uPlot.TypedArray);
         uplot.setData(data, true);
         uplot.axes[1]!.label = localStorage.getItem("unitSystem") === "imperial" ? "Temperature (°F)" : "Temperature (°C)";
         info.innerText = `${localStorage.getItem("latitude")}°N, ${localStorage.getItem("longitude")}°E, ${json.elevation}m above sea level`;
@@ -322,6 +254,70 @@ const { parameter, friendlyName, type } = Astro.props;
         done.classList.remove("hidden");
         done.classList.add("flex");
       });
+    }
+
+    averageDataWithNull(rawData: Record<string, number[] | string[]>): (number | null)[] {
+      const filteredData = Object.values(rawData).slice(1)! as number[][];
+      const arrays: number[][] = Array.from({ length: filteredData.length }, () => []);
+
+      filteredData.forEach((array) => {
+        array.forEach((value, index) => {
+          arrays[index]!.push(value);
+        });
+      });
+
+      const averages = arrays.map((array) => {
+        if (array.length < 1) return null;
+        const average = array.reduce((sum, num) => sum + num, 0) / array.length;
+        return parseFloat((Math.round(average * 10) / 10).toFixed(1));
+      });
+
+      return averages;
+    }
+
+    async getWeatherData(parameter: string, errorFunction: CallbackFunction): Promise<WeatherData> {
+      const apiUrl = new URL("https://ensemble-api.open-meteo.com/v1/ensemble");
+      apiUrl.searchParams.set("latitude", localStorage.getItem("latitude")!);
+      apiUrl.searchParams.set("longitude", localStorage.getItem("longitude")!);
+      apiUrl.searchParams.set("timeformat", "unixtime");
+      apiUrl.searchParams.set("hourly", parameter);
+      apiUrl.searchParams.set("temperature_unit", localStorage.getItem("unitSystem") === "imperial" ? "fahrenheit" : "celsius");
+      apiUrl.searchParams.set("wind_speed_unit", localStorage.getItem("unitSystem") === "imperial" ? "mph" : "kmh");
+      apiUrl.searchParams.set("precipitation_unit", localStorage.getItem("unitSystem") === "imperial" ? "inch" : "mm");
+      apiUrl.searchParams.set(
+        "models",
+        ["icon_seamless", "icon_global", "icon_eu", "icon_d2", "gfs_seamless", "gfs025", "gfs05", "ecmwf_ifs04", "ecmwf_ifs025", "gem_global", "bom_access_global_ensemble"].toString(),
+      );
+
+      const finalUrl = apiUrl.toString();
+
+      try {
+        const response = await fetch(finalUrl);
+        if (!response.ok) {
+          const error = new Error("Non-200 Response Code");
+          errorFunction(error);
+          throw error;
+        }
+        const json = await response.json();
+        return json;
+      } catch (error) {
+        errorFunction(error as Error);
+        throw error;
+      }
+    }
+
+    generateRandomColor() {
+      return "#" + (16777216 + Math.floor(Math.random() * 16777216)).toString(16).substring(1);
+    }
+
+    calculateDimensions(): { width: number; height: number } {
+      const width = Math.min(Math.max(window.screen.width * SCREEN_CONSTRAINTS.WIDTH_RATIO, SCREEN_CONSTRAINTS.MIN_WIDTH), SCREEN_CONSTRAINTS.MAX_WIDTH);
+      const height = Math.min(Math.max(window.screen.width * SCREEN_CONSTRAINTS.HEIGHT_RATIO, SCREEN_CONSTRAINTS.MIN_HEIGHT), SCREEN_CONSTRAINTS.MAX_HEIGHT);
+
+      return {
+        width: width,
+        height: height,
+      };
     }
   }
 
