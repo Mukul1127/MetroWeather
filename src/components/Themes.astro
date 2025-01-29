@@ -18,7 +18,7 @@
 */
 
 const themes = [
-  "mukuls",
+  "mukul's",
   "abyss",
   "acid",
   "aqua",
@@ -55,7 +55,7 @@ const themes = [
   "winter",
   "wireframe",
 ];
-const defaultFallbackTheme = "mukuls";
+const defaultFallbackTheme = themes[0];
 
 import swatchbook from "@/assets/fontawesome/swatchbook.svg?raw";
 import check from "@/assets/fontawesome/check.svg?raw";
@@ -70,10 +70,10 @@ import check from "@/assets/fontawesome/check.svg?raw";
     <ul tabindex="0" class="dropdown-content rounded-box bg-base-300 border-neutral max-h-[30.9rem] w-64 space-y-3 overflow-y-auto border p-3 shadow-sm">
       {
         themes.map((theme) => (
-          <button data-theme={theme} class="btn bg-base-100 btn-lg w-full py-3.5 text-left" type="button">
-            <input type="radio" class="theme-controller hidden" name="theme-buttons" value={theme} />
-            <div set:html={check} class="invisible size-3.5 shrink-0 fill-current" />
-            <span class="grow pl-1 text-sm font-semibold">{theme === "mukuls" ? "Mukul's" : theme.charAt(0).toUpperCase() + theme.slice(1)}</span>
+          <button data-theme={theme} class="btn bg-base-100 btn-lg w-full py-3.5 text-left transition-transform hover:scale-105" type="button">
+            <input type="radio" class="theme-controller peer hidden" name="theme-buttons" value={theme} />
+            <div set:html={check} class="invisible size-3.5 shrink-0 fill-current peer-checked:visible" />
+            <span class="grow pl-1 text-sm font-semibold">{theme.charAt(0).toUpperCase() + theme.slice(1)}</span>
             <span class="flex h-full shrink-0 flex-wrap gap-1">
               <span class="rounded-selector bg-primary w-2" />
               <span class="rounded-selector bg-secondary w-2" />
@@ -93,36 +93,23 @@ import check from "@/assets/fontawesome/check.svg?raw";
       const defaultFallbackTheme: string = this.querySelector<HTMLElement>("[data-default-fallback-theme]")!.getAttribute("data-default-fallback-theme")!;
       const theme: string | null = localStorage.getItem("theme");
 
-      if (theme) this.setTheme(this.getThemeButton(theme));
-      else this.setTheme(this.getThemeButton(defaultFallbackTheme));
+      if (theme) this.setTheme(theme);
+      else this.setTheme(defaultFallbackTheme);
 
       const themeOptions: NodeListOf<HTMLButtonElement> = this.querySelectorAll<HTMLButtonElement>("[data-theme]");
       themeOptions.forEach((themeOption: HTMLButtonElement) => {
         themeOption.addEventListener("click", () => {
-          this.setTheme(themeOption);
+          this.setTheme(themeOption.getAttribute("data-theme")!);
         });
       });
     }
 
-    setTheme(themeOption: HTMLButtonElement): void {
-      const oldTheme = localStorage.getItem("theme");
-      if (oldTheme) this.getThemeButton(oldTheme).querySelector("div")!.classList.add("invisible");
-
-      if (
-        ["mukuls", "abyss", "aqua", "black", "business", "coffee", "dark", "dim", "dracula", "forest", "halloween", "luxury", "night", "sunset", "synthwave"].includes(
-          themeOption.getAttribute("data-theme")!,
-        )
-      )
+    setTheme(theme: string): void {
+      localStorage.setItem("theme", theme);
+      this.querySelector(`button[data-theme="${theme}"]`)!.querySelector("input")!.checked = true;
+      if (["mukul's", "abyss", "aqua", "black", "business", "coffee", "dark", "dim", "dracula", "forest", "halloween", "luxury", "night", "sunset", "synthwave"].includes(theme))
         document.documentElement.setAttribute("data-dark", "true");
       else document.documentElement.setAttribute("data-dark", "false");
-      themeOption.querySelector("input")!.checked = true;
-      localStorage.setItem("theme", themeOption.getAttribute("data-theme")!);
-
-      themeOption.querySelector("div")!.classList.remove("invisible");
-    }
-
-    getThemeButton(theme: string): HTMLButtonElement {
-      return this.querySelector<HTMLButtonElement>(`button[data-theme=${theme}]`)!;
     }
   }
 
