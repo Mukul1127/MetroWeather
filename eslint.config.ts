@@ -1,6 +1,6 @@
 /*
   MeteoNow is a Weather App
-  Copyright (C) 2024 Mukul Kedia
+  Copyright (C) 2025 Mukul Kedia
 
   MeteoNow is free software: you can redistribute it and/or modify
   it under the terms of the GNU Affero General Public License as published
@@ -16,19 +16,18 @@
   along with MeteoNow. If not, see <https://www.gnu.org/licenses/>.
 */
 
-import js from "@eslint/js";
+import eslint from "@eslint/js";
 import tseslint from "typescript-eslint";
-
-import tailwind from "eslint-plugin-tailwindcss";
 import eslintPluginAstro from "eslint-plugin-astro";
 import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended";
+import eslintConfigPrettier from "eslint-config-prettier";
 
 export default tseslint.config(
-  js.configs.recommended,
+  eslintConfigPrettier,
+  eslint.configs.recommended,
   tseslint.configs.strictTypeChecked,
   tseslint.configs.stylisticTypeChecked,
-  tailwind.configs["flat/recommended"],
-  eslintPluginAstro.configs["flat/recommended"],
+  ...eslintPluginAstro.configs.recommended,
   eslintPluginPrettierRecommended,
   {
     ignores: [".astro/", "dist/"],

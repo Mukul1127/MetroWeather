@@ -1,7 +1,7 @@
 ---
 /*
   MeteoNow is a Weather App
-  Copyright (C) 2024 Mukul Kedia
+  Copyright (C) 2025 Mukul Kedia
 
   MeteoNow is free software: you can redistribute it and/or modify
   it under the terms of the GNU Affero General Public License as published
@@ -20,7 +20,7 @@
 import Nav from "@/components/Nav.astro";
 import Layout from "@/layouts/Layout.astro";
 
-import umbrella from "@/assets/fontawesome/umbrella.svg?raw";
+import tornado from "@/assets/fontawesome/tornado.svg?raw";
 import arrowRight from "@/assets/fontawesome/arrow-right.svg?raw";
 ---
 
@@ -28,8 +28,8 @@ import arrowRight from "@/assets/fontawesome/arrow-right.svg?raw";
   <Nav />
   <div class="fixed inset-0 grid place-items-center">
     <div>
-      <div class="flex gap-2">
-        <div set:html={umbrella} class="size-32 fill-current sm:size-48 md:size-56 lg:size-64" />
+      <div class="flex gap-8 items-center">
+        <div set:html={tornado} class="size-20 fill-current sm:size-24 md:size-32 lg:size-44 -translate-y-1 sm:-translate-y-2 md:-translate-y-3" />
         <div class="grid text-6xl font-bold leading-[0.9] tracking-tight sm:text-7xl md:text-8xl lg:text-9xl">
           <h1>Meteo</h1>
           <h1 class="flex"><p class="text-accent">N</p><p class="text-primary">O</p><p class="text-secondary">W</p></h1>

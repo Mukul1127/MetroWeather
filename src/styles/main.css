@@ -1,0 +1,88 @@
+/*
+  MeteoNow is a Weather App
+  Copyright (C) 2025 Mukul Kedia
+
+  MeteoNow is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as published
+  by the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  MeteoNow is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with MeteoNow. If not, see <https://www.gnu.org/licenses/>.
+*/
+
+@font-face {
+  font-family: "Inter";
+  font-weight: 100 900;
+  font-display: swap;
+  font-style: normal;
+  src: url("/Inter.woff2") format("woff2");
+}
+
+@import "tailwindcss";
+
+@plugin "daisyui" {
+  themes: all;
+  logs: false;
+}
+
+@plugin "daisyui/theme" {
+  name: "mukuls";
+  default: true;
+  prefersdark: true;
+  color-scheme: dark;
+  --color-base-100: oklch(22% 0.019 237.69);
+  --color-base-200: oklch(20% 0.019 237.69);
+  --color-base-300: oklch(18% 0.019 237.69);
+  --color-base-content: oklch(77.383% 0.043 245.096);
+  --color-primary: var(--color-blue-300);
+  --color-primary-content: oklch(14.94% 0.031 39.947);
+  --color-secondary: var(--color-green-300);
+  --color-secondary-content: oklch(14.507% 0.035 2.72);
+  --color-accent: var(--color-red-400);
+  --color-accent-content: oklch(14.258% 0.033 299.844);
+  --color-neutral: oklch(26% 0.019 237.69);
+  --color-neutral-content: oklch(70% 0.019 237.69);
+  --color-info: oklch(85.559% 0.085 206.015);
+  --color-info-content: oklch(17.111% 0.017 206.015);
+  --color-success: oklch(85.56% 0.085 144.778);
+  --color-success-content: oklch(17.112% 0.017 144.778);
+  --color-warning: oklch(85.569% 0.084 74.427);
+  --color-warning-content: oklch(17.113% 0.016 74.427);
+  --color-error: oklch(85.511% 0.078 16.886);
+  --color-error-content: oklch(17.102% 0.015 16.886);
+  --radius-selector: 1rem;
+  --radius-field: 0.5rem;
+  --radius-box: 1rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
+}
+
+@variant dark (&:where([data-dark="true"] *));
+
+@theme {
+  --font-sans: "Inter";
+}
+
+* {
+  text-rendering: optimizeLegibility;
+  font-feature-settings:
+    "ss01",
+    "cv05",
+    "ss03",
+    "case",
+    "cv06",
+    "cv11",
+    "cv12",
+    "cv13",
+    "liga" 1,
+    "calt" 1;
+}

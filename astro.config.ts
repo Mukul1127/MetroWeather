@@ -1,6 +1,6 @@
 /*
   MeteoNow is a Weather App
-  Copyright (C) 2024 Mukul Kedia
+  Copyright (C) 2025 Mukul Kedia
 
   MeteoNow is free software: you can redistribute it and/or modify
   it under the terms of the GNU Affero General Public License as published
@@ -20,5 +20,8 @@ import { defineConfig } from "astro/config";
 
 // https://astro.build/config
 export default defineConfig({
-  integrations: [(await import("@astrojs/tailwind")).default(), (await import("@playform/compress")).default(), (await import("@playform/inline")).default({})],
+  integrations: [(await import("@playform/compress")).default()],
+  vite: {
+    plugins: [(await import("@tailwindcss/vite")).default()],
+  },
 });

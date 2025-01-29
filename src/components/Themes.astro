@@ -1,7 +1,7 @@
 ---
 /*
   MeteoNow is a Weather App
-  Copyright (C) 2024 Mukul Kedia
+  Copyright (C) 2025 Mukul Kedia
 
   MeteoNow is free software: you can redistribute it and/or modify
   it under the terms of the GNU Affero General Public License as published
@@ -17,84 +17,111 @@
   along with MeteoNow. If not, see <https://www.gnu.org/licenses/>.
 */
 
-import tailwindConfig from "tailwind.config";
-
-const defaultfallbackTheme = tailwindConfig.daisyui.darkTheme;
-const themes = tailwindConfig.daisyui.themes.map((item) => (typeof item === "object" ? Object.keys(item)[0] : item)) as string[];
+const themes = [
+  "mukuls",
+  "abyss",
+  "acid",
+  "aqua",
+  "autumn",
+  "black",
+  "bumblebee",
+  "business",
+  "caramellatte",
+  "cmyk",
+  "coffee",
+  "corporate",
+  "cupcake",
+  "cyberpunk",
+  "dark",
+  "dim",
+  "dracula",
+  "emerald",
+  "fantasy",
+  "forest",
+  "garden",
+  "halloween",
+  "lemonade",
+  "light",
+  "lofi",
+  "luxury",
+  "night",
+  "nord",
+  "pastel",
+  "retro",
+  "silk",
+  "sunset",
+  "synthwave",
+  "valentine",
+  "winter",
+  "wireframe",
+];
+const defaultFallbackTheme = "mukuls";
 
 import swatchbook from "@/assets/fontawesome/swatchbook.svg?raw";
 import check from "@/assets/fontawesome/check.svg?raw";
 ---
 
 <themes->
-  <div class="dropdown dropdown-end z-50" data-default-fallback-theme={defaultfallbackTheme}>
-    <div role="button" tabindex="0" aria-labelledby="label" class="btn btn-ghost flex gap-2">
+  <div class="dropdown dropdown-end">
+    <div tabindex="0" role="button" class="btn btn-ghost" data-default-fallback-theme={defaultFallbackTheme}>
       <div set:html={swatchbook} class="size-4 fill-current" />
-      <p id="label" class="hidden sm:block">Theme Changer</p>
+      Theme Changer
     </div>
-    <div title="Change Theme" class="dropdown-content">
-      <div tabindex="0" class="card h-[30.9rem] w-64 overflow-y-auto border border-white/5 bg-base-200">
-        <div class="flex flex-col gap-3 p-3">
-          {
-            themes.map((theme) => (
-              <button id={theme} data-theme={theme} data-theme-option class="btn !bg-base-100 py-3 text-left hover:scale-105" type="button">
-                <div id={`${theme}-svg`} set:html={check} class="invisible size-3.5 shrink-0 fill-current" />
-                <span class="grow pl-1 text-sm font-semibold">{theme === "mukuls" ? "Mukul's" : theme.charAt(0).toUpperCase() + theme.slice(1)}</span>
-                <span class="flex h-full shrink-0 flex-wrap gap-1">
-                  <span class="w-2 rounded-badge bg-primary" />
-                  <span class="w-2 rounded-badge bg-secondary" />
-                  <span class="w-2 rounded-badge bg-accent" />
-                  <span class="w-2 rounded-badge bg-neutral" />
-                </span>
-              </button>
-            ))
-          }
-        </div>
-      </div>
-    </div>
+    <ul tabindex="0" class="dropdown-content rounded-box bg-base-300 border-neutral max-h-[30.9rem] w-64 space-y-3 overflow-y-auto border p-3 shadow-sm">
+      {
+        themes.map((theme) => (
+          <button data-theme={theme} class="btn bg-base-100 btn-lg w-full py-3.5 text-left" type="button">
+            <input type="radio" class="theme-controller hidden" name="theme-buttons" value={theme} />
+            <div set:html={check} class="invisible size-3.5 shrink-0 fill-current" />
+            <span class="grow pl-1 text-sm font-semibold">{theme === "mukuls" ? "Mukul's" : theme.charAt(0).toUpperCase() + theme.slice(1)}</span>
+            <span class="flex h-full shrink-0 flex-wrap gap-1">
+              <span class="rounded-selector bg-primary w-2" />
+              <span class="rounded-selector bg-secondary w-2" />
+              <span class="rounded-selector bg-accent w-2" />
+              <span class="rounded-selector bg-neutral w-2" />
+            </span>
+          </button>
+        ))
+      }
+    </ul>
   </div>
 </themes->
 
 <script>
   class Themes extends HTMLElement {
-    connectedCallback() {
-      const defaultfallbackTheme = this.querySelector<HTMLDivElement>("div")!.getAttribute("data-default-fallback-theme")!;
+    connectedCallback(): void {
+      const defaultFallbackTheme: string = this.querySelector<HTMLElement>("[data-default-fallback-theme]")!.getAttribute("data-default-fallback-theme")!;
+      const theme: string | null = localStorage.getItem("theme");
 
-      const theme = localStorage.getItem("theme");
+      if (theme) this.setTheme(this.getThemeButton(theme));
+      else this.setTheme(this.getThemeButton(defaultFallbackTheme));
 
-      if (theme) {
-        this.setTheme(theme);
-        const svg = this.querySelector<SVGAElement>(`#${theme}-svg`)!;
-        svg.classList.remove("invisible");
-      } else {
-        const svg = this.querySelector<SVGAElement>(`#${defaultfallbackTheme}-svg`)!;
-        svg.classList.remove("invisible");
-      }
-
-      const themeOptions = this.querySelectorAll<HTMLButtonElement>("[data-theme-option]");
-
-      themeOptions.forEach((themeOption) => {
+      const themeOptions: NodeListOf<HTMLButtonElement> = this.querySelectorAll<HTMLButtonElement>("[data-theme]");
+      themeOptions.forEach((themeOption: HTMLButtonElement) => {
         themeOption.addEventListener("click", () => {
-          let currentTheme = localStorage.getItem("theme");
-          if (!currentTheme) currentTheme = defaultfallbackTheme;
-
-          const oldSvg = this.querySelector<SVGAElement>(`#${currentTheme}-svg`)!;
-          oldSvg.classList.add("invisible");
-
-          this.setTheme(themeOption.id);
-          const newSvg = this.querySelector<SVGAElement>(`#${themeOption.id}-svg`)!;
-          newSvg.classList.remove("invisible");
+          this.setTheme(themeOption);
         });
       });
     }
 
-    setTheme(theme: string) {
-      if (["mukuls", "dark", "synthwave", "halloween", "forest", "aqua", "black", "luxury", "dracula", "business", "night", "coffee", "dim", "sunset"].includes(theme))
+    setTheme(themeOption: HTMLButtonElement): void {
+      this.getThemeButton(localStorage.getItem("theme")!).querySelector("div")!.classList.add("invisible");
+
+      if (
+        ["mukuls", "abyss", "aqua", "black", "business", "coffee", "dark", "dim", "dracula", "forest", "halloween", "luxury", "night", "sunset", "synthwave"].includes(
+          themeOption.getAttribute("data-theme")!,
+        )
+      )
         document.documentElement.setAttribute("data-dark", "true");
       else document.documentElement.setAttribute("data-dark", "false");
+      themeOption.querySelector("input")!.checked = true;
+      localStorage.setItem("theme", themeOption.getAttribute("data-theme")!);
 
-      document.documentElement.setAttribute("data-theme", theme);
-      localStorage.setItem("theme", theme);
+      themeOption.querySelector("div")!.classList.remove("invisible");
+    }
+
+    getThemeButton(theme: string): HTMLButtonElement {
+      return this.querySelector<HTMLButtonElement>(`button[data-theme=${theme}]`)!;
     }
   }
 

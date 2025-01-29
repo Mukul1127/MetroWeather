@@ -1,7 +1,7 @@
 ---
 /*
   MeteoNow is a Weather App
-  Copyright (C) 2024 Mukul Kedia
+  Copyright (C) 2025 Mukul Kedia
 
   MeteoNow is free software: you can redistribute it and/or modify
   it under the terms of the GNU Affero General Public License as published
@@ -18,7 +18,7 @@
 */
 
 import Themes from "@/components/Themes.astro";
-import umbrella from "@/assets/fontawesome/umbrella.svg?raw";
+import tornado from "@/assets/fontawesome/tornado.svg?raw";
 import githubAlt from "@/assets/fontawesome/github-alt.svg?raw";
 import wrench from "@/assets/fontawesome/wrench.svg?raw";
 
@@ -28,7 +28,7 @@ import SettingsModal from "./SettingsModal.astro";
 <SettingsModal />
 <nav class="navbar sticky top-0 z-50 justify-between bg-base-100/50 backdrop-blur md:justify-around">
   <a href="/" class="btn btn-ghost text-xl">
-    <div set:html={umbrella} class="size-6 fill-current" />
+    <div set:html={tornado} class="size-4 fill-current -translate-y-0.5" />
     MeteoNow
   </a>
   <div class="flex gap-2">
