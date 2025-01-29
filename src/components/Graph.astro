@@ -151,7 +151,7 @@ const { parameter, friendlyName, type } = Astro.props;
       series.push({
         show: true,
         spanGaps: true,
-        stroke: `oklch(${window.getComputedStyle(document.body).getPropertyValue("--b1")})`,
+        stroke: window.getComputedStyle(document.body).getPropertyValue("--color-base-100"),
         width: 7,
       });
 
@@ -165,13 +165,13 @@ const { parameter, friendlyName, type } = Astro.props;
         axes: [
           {
             font: "14px Inter",
-            stroke: `oklch(${window.getComputedStyle(this).getPropertyValue("--nc")})`,
+            stroke: window.getComputedStyle(this).getPropertyValue("--color-neutral-content"),
           },
           {
             label: json.hourly_units[`${parameter}_icon_seamless`],
             labelFont: "bold 14px Inter",
             font: "14px Inter",
-            stroke: `oklch(${window.getComputedStyle(this).getPropertyValue("--nc")})`,
+            stroke: window.getComputedStyle(this).getPropertyValue("--color-neutral-content"),
           },
         ],
       } as uPlot.Options;
@@ -199,9 +199,9 @@ const { parameter, friendlyName, type } = Astro.props;
         mutations.forEach((mutation) => {
           if (mutation.type === "attributes" && mutation.attributeName!.startsWith("data-theme")) {
             uplot.axes.forEach((axis) => {
-              axis.stroke = () => `oklch(${window.getComputedStyle(this).getPropertyValue("--nc")})`;
+              axis.stroke = () => window.getComputedStyle(this).getPropertyValue("--color-neutral-content");
             });
-            uplot.series.at(-1)!.stroke = () => `oklch(${window.getComputedStyle(this).getPropertyValue("--b1")})`;
+            uplot.series.at(-1)!.stroke = () => window.getComputedStyle(this).getPropertyValue("--color-base-100");
             uplot.redraw(false, false);
           }
         });
