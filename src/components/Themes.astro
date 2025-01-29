@@ -105,7 +105,8 @@ import check from "@/assets/fontawesome/check.svg?raw";
     }
 
     setTheme(themeOption: HTMLButtonElement): void {
-      this.getThemeButton(localStorage.getItem("theme")!).querySelector("div")!.classList.add("invisible");
+      const oldTheme = localStorage.getItem("theme");
+      if (oldTheme) this.getThemeButton(oldTheme).querySelector("div")!.classList.add("invisible");
 
       if (
         ["mukuls", "abyss", "aqua", "black", "business", "coffee", "dark", "dim", "dracula", "forest", "halloween", "luxury", "night", "sunset", "synthwave"].includes(
