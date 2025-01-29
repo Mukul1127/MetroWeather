@@ -30,10 +30,10 @@ const { parameter, friendlyName, type } = Astro.props;
 ---
 
 <graphs->
-  <div class="card size-fit min-w-[23rem] bg-neutral p-4">
+  <div class="card bg-neutral size-fit min-w-[23rem] p-4">
     <div class="mb-3 flex justify-between">
-      <h1 class="m-1 text-balance text-2xl font-bold text-neutral-content">{friendlyName}</h1>
-      <h1 class="w-48 text-balance text-xs text-neutral-content sm:text-sm">
+      <h1 class="text-neutral-content m-1 text-2xl font-bold text-balance">{friendlyName}</h1>
+      <h1 class="text-neutral-content w-48 text-xs text-balance sm:text-sm">
         Weather Data generously provided by <a href="//open-meteo.com" target="_blank" class="link text-accent">Open-Meteo</a>
       </h1>
     </div>
@@ -54,7 +54,7 @@ const { parameter, friendlyName, type } = Astro.props;
           Reload?
         </div>
       </button>
-      <h1 id="info" class="mr-[1vw] text-balance text-right text-xs font-bold text-neutral-content sm:text-sm md:text-lg lg:text-xl"></h1>
+      <h1 id="info" class="text-neutral-content mr-[1vw] text-right text-xs font-bold text-balance sm:text-sm md:text-lg lg:text-xl"></h1>
     </div>
   </div>
 </graphs->
@@ -95,7 +95,7 @@ const { parameter, friendlyName, type } = Astro.props;
       if (!latitude || !longitude || !unitSystem) {
         setTimeout(() => this.connectedCallback(), 500);
         return;
-      };
+      }
 
       this.setup();
     }
