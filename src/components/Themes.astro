@@ -55,7 +55,6 @@ const themes = [
   "winter",
   "wireframe",
 ];
-const defaultFallbackTheme = themes[0];
 
 import swatchbook from "@/assets/fontawesome/swatchbook.svg?raw";
 import check from "@/assets/fontawesome/check.svg?raw";
@@ -63,7 +62,7 @@ import check from "@/assets/fontawesome/check.svg?raw";
 
 <themes->
   <div class="dropdown dropdown-end">
-    <div tabindex="0" role="button" class="btn btn-ghost" data-default-fallback-theme={defaultFallbackTheme}>
+    <div tabindex="0" role="button" class="btn btn-ghost" data-themes={JSON.stringify(themes)}>
       <div set:html={swatchbook} class="size-4 fill-current" />
       Theme Changer
     </div>
@@ -90,16 +89,20 @@ import check from "@/assets/fontawesome/check.svg?raw";
 <script>
   class Themes extends HTMLElement {
     connectedCallback(): void {
-      const defaultFallbackTheme: string = this.querySelector<HTMLElement>("[data-default-fallback-theme]")!.getAttribute("data-default-fallback-theme")!;
-      const theme: string | null = localStorage.getItem("theme");
+      const themes: string = JSON.parse(this.querySelector<HTMLElement>("[data-themes]")!.dataset.themes!);
+      const currentTheme: string | null = localStorage.getItem("theme");
 
-      if (theme) this.setTheme(theme);
-      else this.setTheme(defaultFallbackTheme);
+      if (currentTheme) {
+        if (themes.includes(currentTheme)) this.setTheme(currentTheme);
+        else this.setTheme(themes[0]!);
+      } else {
+        this.setTheme(themes[0]!);
+      }
 
       const themeOptions: NodeListOf<HTMLButtonElement> = this.querySelectorAll<HTMLButtonElement>("[data-theme]");
       themeOptions.forEach((themeOption: HTMLButtonElement) => {
         themeOption.addEventListener("click", () => {
-          this.setTheme(themeOption.getAttribute("data-theme")!);
+          this.setTheme(themeOption.dataset.theme!);
         });
       });
     }
